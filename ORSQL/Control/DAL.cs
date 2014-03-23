@@ -56,6 +56,18 @@ namespace OR.Control
         /// <returns>返回的数据表</returns>
         public static DataTable GetDataTable<T>(String strWhere, int _PageIndex, ref int _RowCount) where T : Entity
         {
+            return GetDataTable<T>(strWhere, _PageIndex, Util.GetPageSize(), ref _RowCount);
+        }
+
+        /// <summary>
+        /// 查询指定条件的数据，以数据表的方式返回结果。做分页处理
+        /// </summary>
+        /// <typeparam name="T">查询的实体类类型，需继承Entity类型</typeparam>
+        /// <param name="strWhere">查询条件</param>
+        /// <param name="param">参数化查询参数列表</param>
+        /// <returns>返回的数据表</returns>
+        public static DataTable GetDataTable<T>(String strWhere, int _PageIndex, int _PageSize, ref int _RowCount) where T : Entity
+        {
             StringBuilder strSQL = new StringBuilder();
 
             strSQL.Append("SELECT ");
@@ -67,7 +79,7 @@ namespace OR.Control
                 strSQL.Append(" WHERE " + strWhere);
             }
 
-            int pageSize = Util.GetPageSize();
+            int pageSize = _PageSize;
             int pageCount = 0;
 
             return DB.SQLHelper.Query(strSQL.ToString(), _PageIndex, pageSize, ref _RowCount, ref pageCount);
@@ -102,6 +114,20 @@ namespace OR.Control
         public static List<T> GetModelList<T>(String strWhere, int _PageIndex, ref int _RowCount) where T : Entity, new()
         {
             DataTable dt = GetDataTable<T>(strWhere, _PageIndex, ref _RowCount);
+
+            return DataTableToModel<T>(dt);
+        }
+
+        /// <summary>
+        /// 查询指定条件的数据，以指定类型的实体类列表的方式返回结果。内置了分页处理
+        /// </summary>
+        /// <typeparam name="T">查询的实体类类型，需继承Entity类型</typeparam>
+        /// <param name="strWhere">查询条件</param>
+        /// <param name="param">参数化查询参数列表</param>
+        /// <returns>List形式返回的实体类列表</returns>
+        public static List<T> GetModelList<T>(String strWhere, int _PageIndex, int _PageSize, ref int _RowCount) where T : Entity, new()
+        {
+            DataTable dt = GetDataTable<T>(strWhere, _PageIndex, _PageSize, ref _RowCount);
 
             return DataTableToModel<T>(dt);
         }
@@ -178,9 +204,16 @@ namespace OR.Control
             {
                 if (pInfos[j].CanWrite)
                 {
-                    if (!Convert.IsDBNull(dr[pInfos[j].Name]))
+                    try
                     {
-                        pInfos[j].SetValue(model, Convert.ChangeType(dr[pInfos[j].Name], pInfos[j].PropertyType), null);
+                        if (!Convert.IsDBNull(dr[pInfos[j].Name]))
+                        {
+                            pInfos[j].SetValue(model, Convert.ChangeType(dr[pInfos[j].Name], pInfos[j].PropertyType), null);
+                        }
+                    }
+                    catch (System.ArgumentException)
+                    {
+                        //
                     }
                 }
             }

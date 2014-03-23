@@ -23,7 +23,7 @@ namespace OR.Model
         {
             String strMemebers = string.Empty;
 
-            String strEntityKey = typeof(T).Name;
+            String strEntityKey = typeof(T).FullName;
 
             strMemebers = CacheManage.GetEntityMambersName(strEntityKey);
             // 检查hash里有没有，已经有了则直接返回，没有则将其添加进去
@@ -51,7 +51,7 @@ namespace OR.Model
         /// <returns></returns>
         public static PropertyInfo[] GetEntityMembers<T>() where T : Entity
         {
-            String strEntityKey = typeof(T).Name;
+            String strEntityKey = typeof(T).FullName;
 
             PropertyInfo[] props;
 
@@ -92,7 +92,7 @@ namespace OR.Model
         /// <returns></returns>
         public static PropertyInfo[] GetEntityPrimayKeys<T>() where T : Entity
         {
-            String strEntityKey = typeof(T).Name + "@Key";
+            String strEntityKey = typeof(T).FullName + "@Key";
 
             PropertyInfo[] props = CacheManage.GetEntityMambers(strEntityKey);
 
@@ -129,7 +129,7 @@ namespace OR.Model
         /// <returns></returns>
         public static string GetEntityPrimayKeysName<T>() where T : Entity
         {
-            String strEntityKey = typeof(T).Name + "@Key";
+            String strEntityKey = typeof(T).FullName + "@Key";
 
             String strMemebers = CacheManage.GetEntityMambersName(strEntityKey);
 
@@ -218,7 +218,7 @@ namespace OR.Model
         /// <returns></returns>
         public static string GetTableName<T>() where T : Entity
         {
-            String strKeyName = typeof(T).Name + "@TableName";
+            String strKeyName = typeof(T).FullName + "@TableName";
 
             String strTableName = CacheManage.GetEntityMambersName(strKeyName);
 
