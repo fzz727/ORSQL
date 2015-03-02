@@ -55,7 +55,7 @@ namespace OR.Model
 
             PropertyInfo[] props;
 
-            props = CacheManage.GetEntityMembers(strEntityKey);
+            props = CacheManage.GetEntityMembersField(strEntityKey);
 
             if (props == null)
             {
@@ -79,7 +79,7 @@ namespace OR.Model
                 props = members.ToArray();
 
                 // 记录一下缓存
-                CacheManage.AddCacheMembersDict(strEntityKey, props);
+                CacheManage.AddCacheMembersFields(strEntityKey, props);
             }
 
             return props;
@@ -94,7 +94,7 @@ namespace OR.Model
         {
             String strEntityKey = typeof(T).FullName + "@Key";
 
-            PropertyInfo[] props = CacheManage.GetEntityMembers(strEntityKey);
+            PropertyInfo[] props = CacheManage.GetEntityMembersField(strEntityKey);
 
             if (props == null)
             {
@@ -116,7 +116,7 @@ namespace OR.Model
 
                 props = propArray.ToArray();
 
-                CacheManage.AddCacheMembersDict(strEntityKey, props);
+                CacheManage.AddCacheMembersFields(strEntityKey, props);
             }
             return props;
         }
@@ -237,6 +237,40 @@ namespace OR.Model
                     else
                     {
                         strTableName = typeof(T).Name;
+                    }
+                }
+                else
+                {
+                    strTableName = typeof(T).Name;
+                }
+
+                CacheManage.AddCacheMembersNameDict(strKeyName, strTableName);
+            }
+
+            return strTableName;
+        }
+
+        public static string GetTableConnectionName<T>() where T : Entity
+        {
+            String strKeyName = typeof(T).FullName + "@ConnectionName";
+
+            String strTableName = CacheManage.GetEntityMembersName(strKeyName);
+
+            if (String.IsNullOrEmpty(strTableName))
+            {
+
+                object[] attrs = typeof(T).GetCustomAttributes(typeof(Table), false);
+
+                if (attrs != null && attrs.Length > 0 && attrs[0] is Table)
+                {
+                    Table table = (Table)attrs[0];
+                    if (!String.IsNullOrEmpty(table.TableName))
+                    {
+                        strTableName = table.ConnectionName;
+                    }
+                    else
+                    {
+                        strTableName = SQLHelper.defaultConnectionName;
                     }
                 }
                 else

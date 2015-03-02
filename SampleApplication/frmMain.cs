@@ -15,5 +15,13 @@ namespace SampleApplication
         {
             InitializeComponent();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            models.UserInfo user = new models.UserInfo() { Created = DateTime.Now, UserName = "aaaa" };
+
+            user = OR.DAL.Add<models.UserInfo>(user, true);
+
+        }
     }
 }

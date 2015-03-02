@@ -102,7 +102,7 @@ namespace OR.Model
         {
             this._tableName = TableName;
             // 如果没有传入连接串名称，则使用默认的SQLConection
-            this._connName = "SQLConnection";
+            this._connName = SQLHelper.defaultConnectionName;
         }
 
         /// <summary>
@@ -110,7 +110,7 @@ namespace OR.Model
         /// </summary>
         /// <param name="TableName">数据库表名</param>
         /// <param name="ConnectionName">链接字符串名称</param>
-        public Table(String ConnectionName, String TableName)
+        public Table(String TableName, String ConnectionName)
         {
             if (!String.IsNullOrEmpty(ConnectionName))
             {
@@ -118,10 +118,10 @@ namespace OR.Model
             }
             else
             {
-                this._connName = "SQLConnection";
+                this._connName = SQLHelper.defaultConnectionName;
             }
 
-            this.ConnectionName = TableName;
+            this._tableName = TableName;
         }
     }
 

@@ -38,6 +38,11 @@ namespace OR.Model
             }
         }
 
+        /// <summary>
+        /// 返回值为字符串行的，适用于表名，连接串，等单一值范围
+        /// </summary>
+        /// <param name="EntityName"></param>
+        /// <returns></returns>
         public static String GetEntityMembersName(String EntityName)
         {
             if (CacheEntityMembersName.ContainsKey(EntityName))
@@ -48,7 +53,7 @@ namespace OR.Model
         }
 
         /// <summary>
-        /// 更新成员表缓存变量，增加新内容
+        /// 更新成员表缓存变量，增加新内容。字符串型的。适用于表名，连接串等单一值范围。
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
@@ -104,7 +109,7 @@ namespace OR.Model
             }
         }
 
-        public static PropertyInfo[] GetEntityMembers(String EntityName)
+        public static PropertyInfo[] GetEntityMembersField(String EntityName)
         {
             if (CacheEntityMembers.ContainsKey(EntityName))
             {
@@ -118,7 +123,7 @@ namespace OR.Model
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
-        public static void AddCacheMembersDict(String key, PropertyInfo[] value)
+        public static void AddCacheMembersFields(String key, PropertyInfo[] value)
         {
             // 改部分必须保证只有一个同时执行的代码，否则会有问题
             lock (_dictEntityMembersLock)

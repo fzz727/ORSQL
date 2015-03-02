@@ -44,7 +44,7 @@ namespace OR
                 strSQL.Append(" WHERE " + strWhere);
             }
 
-            return SQLHelper.Query(strSQL.ToString(), param).Tables[0];
+            return SQLHelper.Query(strSQL.ToString(), Util.GetTableConnectionName<T>(), param).Tables[0];
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace OR
             int pageSize = _PageSize;
             int pageCount = 0;
 
-            return SQLHelper.Query(strSQL.ToString(), _PageIndex, pageSize, ref _RowCount, ref pageCount);
+            return SQLHelper.Query(strSQL.ToString(), Util.GetTableConnectionName<T>(), _PageIndex, pageSize, ref _RowCount, ref pageCount);
         }
 
         #endregion
@@ -410,7 +410,7 @@ namespace OR
                 // 需要刷新实体类，根据上面的ID内容，查找实体类
                 strSQL = new StringBuilder();
                 strSQL.Append(" Select " + Util.GetEntityMembersName<T>() + " From " + Util.GetTableName<T>() + " WHERE " + Util.GetEntityPrimayKeysName<T>() + "=@id");
-                DataSet ds = SQLHelper.Query(strSQL.ToString(), new SqlParameter("@id", id));
+                DataSet ds = SQLHelper.Query(strSQL.ToString(), Util.GetTableConnectionName<T>(), new SqlParameter("@id", id));
 
                 if (ds.Tables[0].Rows.Count > 0)
                 {
@@ -446,7 +446,7 @@ namespace OR
         public static int Delete<T>(Object modelKeyValue) where T : Entity
         {
             String strSQL = "Delete From " + Util.GetTableName<T>() + " where " + Util.GetEntityPrimayKeysName<T>() + " = @" + Util.GetEntityPrimayKeysName<T>();
-            return SQLHelper.ExecuteSql(strSQL, new SqlParameter("@" + Util.GetEntityPrimayKeysName<T>(), modelKeyValue));
+            return SQLHelper.ExecuteSql(strSQL, Util.GetTableConnectionName<T>(), new SqlParameter("@" + Util.GetEntityPrimayKeysName<T>(), modelKeyValue));
         }
 
         /// <summary>
@@ -497,7 +497,7 @@ namespace OR
             param.Add(new SqlParameter("@" + Util.GetEntityPrimayKeys<T>()[0].Name, Util.GetEntityPrimayKeys<T>()[0].GetValue(model, null)));
 
             // 执行语句，返回结果
-            return SQLHelper.ExecuteSql(strSQL.ToString(), param.ToArray());
+            return SQLHelper.ExecuteSql(strSQL.ToString(), Util.GetTableConnectionName<T>(), param.ToArray());
         }
 
         #endregion
