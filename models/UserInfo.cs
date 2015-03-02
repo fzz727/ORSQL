@@ -5,7 +5,11 @@ using System.Text;
 
 namespace models
 {
+    [OR.Model.Table( "", "")]
     public class UserInfo
     {
     }
+
+    //
+    public class UserInfoImpl<UserInfo> : OR.Model.CacheManage { }
 }

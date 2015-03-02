@@ -7,7 +7,7 @@ using System.Configuration;
 using System.Data.Common;
 using System.Collections.Generic;
 
-namespace OR.DB
+namespace OR
 {
     /// <summary>
     /// 数据访问抽象基础类
@@ -15,17 +15,31 @@ namespace OR.DB
     public abstract class SQLHelper
     {
         //数据库连接字符串(web.config来配置)，可以动态更改connectionString支持多数据库.		
-        public static string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SQLConnection"].ConnectionString;
+        //public static String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["SQLConnection"].ConnectionString;
 
-        #region 执行带参数的SQL语句
+        public static String defaultConnectionName = "SQLConnection";
+
+        #region ExecuteSql
 
         /// <summary>
         /// 执行SQL语句，返回影响的记录数
         /// </summary>
         /// <param name="SQLString">SQL语句</param>
         /// <returns>影响的记录数</returns>
-        public static int ExecuteSql(string SQLString, params SqlParameter[] cmdParms)
+        public static int ExecuteSql(String SQLString, params SqlParameter[] cmdParms)
         {
+            return ExecuteSql(SQLString, defaultConnectionName, cmdParms);
+        }
+
+        /// <summary>
+        /// 执行SQL语句，返回影响的记录数
+        /// </summary>
+        /// <param name="SQLString">SQL语句</param>
+        /// <returns>影响的记录数</returns>
+        public static int ExecuteSql(String SQLString, String connectionName, params SqlParameter[] cmdParms)
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -44,6 +58,9 @@ namespace OR.DB
                 }
             }
         }
+        #endregion
+        
+        #region GetSingle
 
         /// <summary>
         /// 执行一条计算查询结果语句，返回查询结果（object）。
@@ -52,6 +69,20 @@ namespace OR.DB
         /// <returns>查询结果（object）</returns>
         public static object GetSingle(string SQLString, params SqlParameter[] cmdParms)
         {
+            return GetSingle(SQLString, defaultConnectionName, cmdParms);
+        }
+
+        /// <summary>
+        /// 执行一条计算查询结果语句，返回查询结果（object）。
+        /// </summary>
+        /// <param name="SQLString">计算查询结果语句</param>
+        /// <param name="connectionName">连接字符串名称</param>
+        /// <param name="cmdParms">查询结果（object）</param>
+        /// <returns></returns>
+        public static object GetSingle(string SQLString, String connectionName, params SqlParameter[] cmdParms)
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 using (SqlCommand cmd = new SqlCommand())
@@ -78,6 +109,10 @@ namespace OR.DB
             }
         }
 
+        #endregion
+
+        #region ExecuteReader
+        
         /// <summary>
         /// 执行查询语句，返回SqlDataReader ( 注意：调用该方法后，一定要对SqlDataReader进行Close )
         /// </summary>
@@ -85,26 +120,42 @@ namespace OR.DB
         /// <returns>SqlDataReader</returns>
         public static SqlDataReader ExecuteReader(string SQLString, params SqlParameter[] cmdParms)
         {
-            SqlConnection connection = new SqlConnection(connectionString);
-            SqlCommand cmd = new SqlCommand();
-            try
-            {
-                PrepareCommand(cmd, connection, null, SQLString, cmdParms);
-                SqlDataReader myReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-                cmd.Parameters.Clear();
-                return myReader;
-            }
-            catch (System.Data.SqlClient.SqlException e)
-            {
-                throw e;
-            }
-            //			finally
-            //			{
-            //				cmd.Dispose();
-            //				connection.Close();
-            //			}	
-
+            return ExecuteReader(SQLString, defaultConnectionName, cmdParms);
         }
+
+        /// <summary>
+        /// 执行查询语句，返回SqlDataReader ( 注意：调用该方法后，一定要对SqlDataReader进行Close )
+        /// </summary>
+        /// <param name="SQLString">查询语句</param>
+        /// <param name="connectionName">链接字符串名称</param>
+        /// <param name="cmdParms">查询参数</param>
+        /// <returns>SqlDataReader</returns>
+        public static SqlDataReader ExecuteReader(string SQLString,String connectionName, params SqlParameter[] cmdParms)
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand())
+                {
+                    try
+                    {
+                        PrepareCommand(cmd, connection, null, SQLString, cmdParms);
+                        SqlDataReader myReader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
+                        cmd.Parameters.Clear();
+                        return myReader;
+                    }
+                    catch (System.Data.SqlClient.SqlException e)
+                    {
+                        throw e;
+                    }
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region Query
 
         /// <summary>
         /// 执行查询语句，返回DataSet
@@ -113,6 +164,18 @@ namespace OR.DB
         /// <returns>DataSet</returns>
         public static DataSet Query(string SQLString, params SqlParameter[] cmdParms)
         {
+            return Query(SQLString, defaultConnectionName, cmdParms);
+        }
+
+        /// <summary>
+        /// 执行查询语句，返回DataSet
+        /// </summary>
+        /// <param name="SQLString">查询语句</param>
+        /// <returns>DataSet</returns>
+        public static DataSet Query(string SQLString,String connectionName, params SqlParameter[] cmdParms)
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 SqlCommand cmd = new SqlCommand();
@@ -145,6 +208,20 @@ namespace OR.DB
         /// <returns></returns>
         public static DataTable Query(String strSQL, int pageIndex, int pageSize, ref int _RowCount, ref int _PageCount)
         {
+            return Query(strSQL, defaultConnectionName, pageIndex, pageSize, ref _RowCount, ref _PageCount);
+        }
+
+        /// <summary>
+        /// sql分页处理方法。
+        /// </summary>
+        /// <param name="strSQL"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="_RowCount"></param>
+        /// <param name="_PageCount"></param>
+        /// <returns></returns>
+        public static DataTable Query(String strSQL, String connectionName, int pageIndex, int pageSize, ref int _RowCount, ref int _PageCount)
+        {
             System.Text.StringBuilder strPageQuery = new System.Text.StringBuilder();
 
             strPageQuery.Append(" DECLARE @CurrentPageIndex int ");             // 当前检索的页数
@@ -174,35 +251,43 @@ namespace OR.DB
             return dataSet.Tables[1];
 
         }
+        
+        #endregion
 
-        /// <summary>
-        /// 构建 SqlCommand 对象(用来返回一个结果集，而不是一个整数值)
-        /// </summary>
-        /// <param name="connection">数据库连接</param>
-        /// <param name="storedProcName">存储过程名</param>
-        /// <param name="parameters">存储过程参数</param>
-        /// <returns>SqlCommand</returns>
-        private static SqlCommand BuildQueryCommand(SqlConnection connection, string storedProcName, IDataParameter[] parameters)
+        #region ExecSPDataSet
+
+        public DataSet ExecSPDataSet(string procName, params SqlParameter[] cmdParms)
         {
-            SqlCommand command = new SqlCommand(storedProcName, connection);
-            command.CommandType = CommandType.StoredProcedure;
-            foreach (SqlParameter parameter in parameters)
-            {
-                if (parameter != null)
-                {
-                    // 检查未分配值的输出参数,将其分配以DBNull.Value.
-                    if ((parameter.Direction == ParameterDirection.InputOutput || parameter.Direction == ParameterDirection.Input) &&
-                        (parameter.Value == null))
-                    {
-                        parameter.Value = DBNull.Value;
-                    }
-                    command.Parameters.Add(parameter);
-                }
-            }
-
-            return command;
+            return ExecSPDataSet(procName, defaultConnectionName, cmdParms);
         }
 
+        public DataSet ExecSPDataSet(string procName, string connectionName, params SqlParameter[] cmdParms)
+        {
+            String connectionString = System.Configuration.ConfigurationManager.ConnectionStrings[connectionName].ConnectionString;
+
+            SqlConnection conn = new SqlConnection(connectionString);
+            SqlCommand sqlcom = new SqlCommand(procName, conn);
+            sqlcom.CommandType = CommandType.StoredProcedure;
+
+            foreach (System.Data.IDataParameter paramer in cmdParms)
+            {
+                sqlcom.Parameters.Add(paramer);
+            }
+
+            conn.Open();
+
+            SqlDataAdapter da = new SqlDataAdapter();
+            da.SelectCommand = sqlcom;
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+
+            conn.Close();
+            return ds;
+        }
+
+        #endregion
+
+        #region PrepareCommand
 
         private static void PrepareCommand(SqlCommand cmd, SqlConnection conn, SqlTransaction trans, string cmdText, SqlParameter[] cmdParms)
         {
@@ -215,8 +300,6 @@ namespace OR.DB
             cmd.CommandType = CommandType.Text;//cmdType;
             if (cmdParms != null)
             {
-
-
                 foreach (SqlParameter parameter in cmdParms)
                 {
                     if ((parameter.Direction == ParameterDirection.InputOutput || parameter.Direction == ParameterDirection.Input) &&
@@ -230,5 +313,6 @@ namespace OR.DB
         }
 
         #endregion
+
     }
 }

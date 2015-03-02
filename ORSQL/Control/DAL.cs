@@ -6,9 +6,9 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Text;
 using OR.Model;
-using OR.DB;
+using OR;
 
-namespace OR.Control
+namespace OR
 {
     /// <summary>
     ///dal 的摘要说明
@@ -44,7 +44,7 @@ namespace OR.Control
                 strSQL.Append(" WHERE " + strWhere);
             }
 
-            return DB.SQLHelper.Query(strSQL.ToString(), param).Tables[0];
+            return SQLHelper.Query(strSQL.ToString(), param).Tables[0];
         }
 
         /// <summary>
@@ -82,7 +82,7 @@ namespace OR.Control
             int pageSize = _PageSize;
             int pageCount = 0;
 
-            return DB.SQLHelper.Query(strSQL.ToString(), _PageIndex, pageSize, ref _RowCount, ref pageCount);
+            return SQLHelper.Query(strSQL.ToString(), _PageIndex, pageSize, ref _RowCount, ref pageCount);
         }
 
         #endregion
@@ -202,13 +202,31 @@ namespace OR.Control
 
             for (int j = 0; j < pInfos.Length; j++)
             {
+                if (dr[pInfos[j].Name] == DBNull.Value)
+                {
+                    continue;
+                }
+
                 if (pInfos[j].CanWrite)
                 {
                     try
                     {
                         if (!Convert.IsDBNull(dr[pInfos[j].Name]))
                         {
-                            pInfos[j].SetValue(model, Convert.ChangeType(dr[pInfos[j].Name], pInfos[j].PropertyType), null);
+                            if (!pInfos[j].PropertyType.IsGenericType)
+                            {
+                                pInfos[j].SetValue(model, Convert.ChangeType(dr[pInfos[j].Name], pInfos[j].PropertyType), null);
+                            }
+                            else
+                            {
+                                // 加入对 nullable字段类型的处理，主要用于： DateTime? 泛型。 2014/8/6
+                                Type genericTypeDefinition = pInfos[j].PropertyType.GetGenericTypeDefinition();
+
+                                if (genericTypeDefinition == typeof(Nullable<>))
+                                {
+                                    pInfos[j].SetValue(model, Convert.ChangeType(dr[pInfos[j].Name], Nullable.GetUnderlyingType(pInfos[j].PropertyType)), null);
+                                }
+                            }
                         }
                     }
                     catch (System.ArgumentException)
@@ -319,7 +337,7 @@ namespace OR.Control
                                 strValues.Append("@" + props[i].Name + ", ");
 
                                 // 查找序列，对其进行赋值
-                                nextKeyValue = OR.DB.SQLHelper.GetSingle("Select OR_Senquence.nextval From dual");
+                                nextKeyValue = OR.SQLHelper.GetSingle("Select OR_Senquence.nextval From dual");
                                 param.Add(new SqlParameter("@" + props[i].Name, nextKeyValue));
                             }
                             else if (keyType == GenerationType.Manually)
@@ -439,7 +457,6 @@ namespace OR.Control
         /// <returns></returns>
         public static int Update<T>(T model) where T : Entity
         {
-
             Entity entity = null;
 
             if (model is Entity)

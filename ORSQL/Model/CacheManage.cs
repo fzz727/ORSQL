@@ -38,7 +38,7 @@ namespace OR.Model
             }
         }
 
-        public static String GetEntityMambersName(String EntityName)
+        public static String GetEntityMembersName(String EntityName)
         {
             if (CacheEntityMembersName.ContainsKey(EntityName))
             {
@@ -104,7 +104,7 @@ namespace OR.Model
             }
         }
 
-        public static PropertyInfo[] GetEntityMambers(String EntityName)
+        public static PropertyInfo[] GetEntityMembers(String EntityName)
         {
             if (CacheEntityMembers.ContainsKey(EntityName))
             {

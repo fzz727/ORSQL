@@ -23,9 +23,9 @@ namespace OR.Model
         {
             String strMemebers = string.Empty;
 
-            String strEntityKey = typeof(T).FullName;
+            String strEntityKey = typeof(T).FullName + "@FieldsName";
 
-            strMemebers = CacheManage.GetEntityMambersName(strEntityKey);
+            strMemebers = CacheManage.GetEntityMembersName(strEntityKey);
             // 检查hash里有没有，已经有了则直接返回，没有则将其添加进去
             if (String.IsNullOrEmpty(strMemebers))
             {
@@ -51,11 +51,11 @@ namespace OR.Model
         /// <returns></returns>
         public static PropertyInfo[] GetEntityMembers<T>() where T : Entity
         {
-            String strEntityKey = typeof(T).FullName;
+            String strEntityKey = typeof(T).FullName + "@Fields";
 
             PropertyInfo[] props;
 
-            props = CacheManage.GetEntityMambers(strEntityKey);
+            props = CacheManage.GetEntityMembers(strEntityKey);
 
             if (props == null)
             {
@@ -94,7 +94,7 @@ namespace OR.Model
         {
             String strEntityKey = typeof(T).FullName + "@Key";
 
-            PropertyInfo[] props = CacheManage.GetEntityMambers(strEntityKey);
+            PropertyInfo[] props = CacheManage.GetEntityMembers(strEntityKey);
 
             if (props == null)
             {
@@ -131,7 +131,7 @@ namespace OR.Model
         {
             String strEntityKey = typeof(T).FullName + "@Key";
 
-            String strMemebers = CacheManage.GetEntityMambersName(strEntityKey);
+            String strMemebers = CacheManage.GetEntityMembersName(strEntityKey);
 
             if (String.IsNullOrEmpty(strMemebers))
             {
@@ -220,7 +220,7 @@ namespace OR.Model
         {
             String strKeyName = typeof(T).FullName + "@TableName";
 
-            String strTableName = CacheManage.GetEntityMambersName(strKeyName);
+            String strTableName = CacheManage.GetEntityMembersName(strKeyName);
 
             if (String.IsNullOrEmpty(strTableName))
             {
@@ -230,7 +230,14 @@ namespace OR.Model
                 if (attrs != null && attrs.Length > 0 && attrs[0] is Table)
                 {
                     Table table = (Table)attrs[0];
-                    strTableName = table.TableName;
+                    if (!String.IsNullOrEmpty(table.TableName))
+                    {
+                        strTableName = table.TableName;
+                    }
+                    else
+                    {
+                        strTableName = typeof(T).Name;
+                    }
                 }
                 else
                 {

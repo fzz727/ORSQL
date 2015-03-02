@@ -45,6 +45,7 @@
     <Compile Include="Model\CacheManage.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\Util.cs" />
+    <Compile Include="Param.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

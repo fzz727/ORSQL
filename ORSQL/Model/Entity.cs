@@ -90,9 +90,38 @@ namespace OR.Model
             }
         }
 
+        private String _connName;
+
+        public String ConnectionName
+        {
+            get { return _connName; }
+            set { _connName = value; }
+        }
+
         public Table(String TableName)
         {
             this._tableName = TableName;
+            // 如果没有传入连接串名称，则使用默认的SQLConection
+            this._connName = "SQLConnection";
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="TableName">数据库表名</param>
+        /// <param name="ConnectionName">链接字符串名称</param>
+        public Table(String ConnectionName, String TableName)
+        {
+            if (!String.IsNullOrEmpty(ConnectionName))
+            {
+                this._connName = ConnectionName;
+            }
+            else
+            {
+                this._connName = "SQLConnection";
+            }
+
+            this.ConnectionName = TableName;
         }
     }
 
