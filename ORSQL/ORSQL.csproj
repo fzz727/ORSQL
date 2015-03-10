@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="Control\DAL.cs" />
     <Compile Include="DB\SQLHelper.cs" />
+    <Compile Include="Model\CachedEntity.cs" />
     <Compile Include="Model\CacheManage.cs" />
     <Compile Include="Model\Entity.cs" />
     <Compile Include="Model\Util.cs" />
