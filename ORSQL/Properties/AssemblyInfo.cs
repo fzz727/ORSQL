@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("ORSQL")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Wiztek.com.cn")]
 [assembly: AssemblyProduct("ORSQL")]
 [assembly: AssemblyCopyright("Copyright ©  2010")]
 [assembly: AssemblyTrademark("")]
